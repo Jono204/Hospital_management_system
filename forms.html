@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MediSystem – Hospital Forms</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f4f6f9;
+      --surface:   #ffffff;
+      --border:    #d1d9e0;
+      --primary:   #1a5fa8;
+      --primary-h: #154d8a;
+      --accent:    #e8f0fb;
+      --text:      #1c2b3a;
+      --muted:     #6b7c93;
+      --error:     #c0392b;
+      --success:   #1e8449;
+      --radius:    10px;
+      --shadow:    0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .page-header p {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 0.9rem;
+    }
+
+    /* ── Navigation tabs ── */
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .tab-btn {
+      padding: 8px 20px;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover  { border-color: var(--primary); color: var(--primary); }
+    .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ── Form card ── */
+    .form-card {
+      display: none;
+      max-width: 560px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .form-card.active { display: block; }
+
+    .form-card-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1.25rem 1.75rem;
+    }
+    .form-card-header h2 { font-size: 1.1rem; font-weight: 600; }
+    .form-card-header p  { font-size: 0.83rem; opacity: 0.85; margin-top: 2px; }
+
+    .form-body { padding: 1.75rem; }
+
+    /* ── Form elements ── */
+    .form-group { margin-bottom: 1.1rem; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.93rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,95,168,0.12);
+    }
+    input:invalid:not(:placeholder-shown) { border-color: var(--error); }
+    input:valid:not(:placeholder-shown)   { border-color: var(--success); }
+
+    textarea { resize: vertical; min-height: 90px; }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Role selector (login) ── */
+    .role-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 1.1rem;
+    }
+    .role-option { position: relative; }
+    .role-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .role-option label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 6px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-transform: capitalize;
+      letter-spacing: 0;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .role-option input:checked + label {
+      border-color: var(--primary);
+      background: var(--accent);
+      color: var(--primary);
+    }
+    .role-icon { font-size: 1.4rem; }
+
+    /* ── Status selector (admin) ── */
+    .status-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .status-pills input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .status-pill-label {
+      padding: 5px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .status-pills input:checked + .status-pill-label {
+      border-color: var(--primary);
+      background: var(--accent);
+      color: var(--primary);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      width: 100%;
+      padding: 11px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+    .btn-submit:hover  { background: var(--primary-h); }
+    .btn-submit:active { transform: scale(0.98); }
+
+    .form-footer {
+      text-align: center;
+      font-size: 0.83rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+    .form-footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+
+    /* ── Success message ── */
+    .success-msg {
+      display: none;
+      background: #eafaf1;
+      border: 1px solid #a9dfbf;
+      border-radius: 7px;
+      padding: 12px 16px;
+      color: var(--success);
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    @media (max-width: 500px) {
+      .form-row { grid-template-columns: 1fr; }
+      .role-group { grid-template-columns: 1fr 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>&#127973; MediSystem</h1>
+    <p>Hospital Appointment &amp; Patient Management System — HPXS302-1 Q7</p>
+  </div>
+
+  <!-- Tab navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showForm('login')">Login</button>
+    <button class="tab-btn"        onclick="showForm('booking')">Book Appointment</button>
+    <button class="tab-btn"        onclick="showForm('schedule')">Manage Schedule</button>
+    <button class="tab-btn"        onclick="showForm('admin')">Admin Controls</button>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       FORM 1: Login
+  ══════════════════════════════════════════ -->
+  <div class="form-card active" id="form-login">
+    <div class="form-card-header">
+      <h2>Sign in to MediSystem</h2>
+      <p>Select your role and enter your credentials</p>
+    </div>
+    <div class="form-body">
+      <div id="login-success" class="success-msg">Login successful! Redirecting...</div>
+
+      <form id="loginForm" action="php/login.php" method="POST" novalidate>
+
+        <!-- Role selector (radio buttons styled as cards) -->
+        <div class="form-group">
+          <label>I am a</label>
+          <div class="role-group">
+            <div class="role-option">
+              <input type="radio" name="role" id="role-patient" value="patient" checked required>
+              <label for="role-patient"><span class="role-icon">&#128100;</span>Patient</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" name="role" id="role-doctor" value="doctor" required>
+              <label for="role-doctor"><span class="role-icon">&#129658;</span>Doctor</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" name="role" id="role-admin" value="admin" required>
+              <label for="role-admin"><span class="role-icon">&#128737;</span>Admin</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="login-email">Email address</label>
+          <input
+            type="email"
+            id="login-email"
+            name="email"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+          <p class="hint">Must be a valid email format</p>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input
+            type="password"
+            id="login-password"
+            name="password"
+            placeholder="Enter your password"
+            required
+            minlength="6"
+            autocomplete="current-password"
+          />
+          <p class="hint">Minimum 6 characters</p>
+        </div>
+
+        <button type="submit" class="btn-submit">Sign in</button>
+        <p class="form-footer">Don't have an account? <a href="#">Contact admin</a></p>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       FORM 2: Appointment Booking
+  ══════════════════════════════════════════ -->
+  <div class="form-card" id="form-booking">
+    <div class="form-card-header">
+      <h2>Book an appointment</h2>
+      <p>Fill in your details to request an appointment</p>
+    </div>
+    <div class="form-body">
+      <div id="booking-success" class="success-msg">Appointment request submitted successfully!</div>
+
+      <form id="bookingForm" action="php/book_appointment.php" method="POST" novalidate>
+
+        <!-- Patient details -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="b-firstname">First name</label>
+            <input
+              type="text"
+              id="b-firstname"
+              name="first_name"
+              placeholder="John"
+              required
+              minlength="2"
+              pattern="[A-Za-z ]+"
+              autocomplete="given-name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="b-lastname">Last name</label>
+            <input
+              type="text"
+              id="b-lastname"
+              name="last_name"
+              placeholder="Doe"
+              required
+              minlength="2"
+              pattern="[A-Za-z ]+"
+              autocomplete="family-name"
+            />
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="b-email">Email address</label>
+            <input
+              type="email"
+              id="b-email"
+              name="email"
+              placeholder="you@email.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+          <div class="form-group">
+            <label for="b-phone">Phone number</label>
+            <input
+              type="tel"
+              id="b-phone"
+              name="phone"
+              placeholder="082 000 0000"
+              required
+              pattern="[0-9]{10}"
+            />
+            <p class="hint">10 digits, no spaces</p>
+          </div>
+        </div>
+
+        <hr class="divider"/>
+
+        <!-- Appointment details -->
+        <div class="form-group">
+          <label for="b-doctor">Select doctor</label>
+          <select id="b-doctor" name="doctor_id" required>
+            <option value="" disabled selected>-- Choose a doctor --</option>
+            <option value="1">Dr. Amanda Smith – General Practitioner</option>
+            <option value="2">Dr. Thabo Nkosi – Cardiology</option>
+            <option value="3">Dr. Priya Patel – Paediatrics</option>
+            <option value="4">Dr. Willem Botha – Orthopaedics</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="b-date">Preferred date</label>
+            <input
+              type="date"
+              id="b-date"
+              name="appointment_date"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="b-time">Preferred time</label>
+            <input
+              type="time"
+              id="b-time"
+              name="appointment_time"
+              required
+              min="08:00"
+              max="17:00"
+            />
+            <p class="hint">Between 08:00 and 17:00</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="b-reason">Reason for visit</label>
+          <textarea
+            id="b-reason"
+            name="reason"
+            placeholder="Briefly describe your symptoms or reason for the appointment..."
+            required
+            minlength="5"
+            maxlength="500"
+          ></textarea>
+          <p class="hint">Max 500 characters</p>
+        </div>
+
+        <button type="submit" class="btn-submit">Request appointment</button>
+        <p class="form-footer">You will receive a confirmation once the doctor approves.</p>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       FORM 3: Doctor Schedule Management
+  ══════════════════════════════════════════ -->
+  <div class="form-card" id="form-schedule">
+    <div class="form-card-header">
+      <h2>Manage schedule</h2>
+      <p>Update appointment status and add medical records</p>
+    </div>
+    <div class="form-body">
+      <div id="schedule-success" class="success-msg">Appointment record updated successfully!</div>
+
+      <form id="scheduleForm" action="php/update_appointment.php" method="POST" novalidate>
+
+        <!-- Appointment lookup -->
+        <div class="form-group">
+          <label for="s-appt-id">Appointment ID</label>
+          <input
+            type="number"
+            id="s-appt-id"
+            name="appointment_id"
+            placeholder="e.g. 7"
+            required
+            min="1"
+          />
+          <p class="hint">Enter the appointment ID to load the record</p>
+        </div>
+
+        <!-- Update status -->
+        <div class="form-group">
+          <label>Update status</label>
+          <div class="status-pills">
+            <div>
+              <input type="radio" name="status" id="s-requested"  value="requested"  id="s-req">
+              <label class="status-pill-label" for="s-requested">Requested</label>
+            </div>
+            <div>
+              <input type="radio" name="status" id="s-confirmed"  value="confirmed">
+              <label class="status-pill-label" for="s-confirmed">Confirmed</label>
+            </div>
+            <div>
+              <input type="radio" name="status" id="s-completed"  value="completed">
+              <label class="status-pill-label" for="s-completed">Completed</label>
+            </div>
+            <div>
+              <input type="radio" name="status" id="s-cancelled"  value="cancelled">
+              <label class="status-pill-label" for="s-cancelled">Cancelled</label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider"/>
+
+        <!-- Medical record fields -->
+        <div class="form-group">
+          <label for="s-diagnosis">Diagnosis</label>
+          <input
+            type="text"
+            id="s-diagnosis"
+            name="diagnosis"
+            placeholder="e.g. Stage 1 hypertension"
+            minlength="3"
+            maxlength="255"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="s-treatment">Treatment prescribed</label>
+          <input
+            type="text"
+            id="s-treatment"
+            name="treatment"
+            placeholder="e.g. Lisinopril 10mg daily"
+            minlength="3"
+            maxlength="255"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="s-notes">Clinical notes</label>
+          <textarea
+            id="s-notes"
+            name="notes"
+            placeholder="Additional notes about the patient's condition..."
+            maxlength="1000"
+          ></textarea>
+          <p class="hint">Optional — max 1000 characters</p>
+        </div>
+
+        <div class="form-group">
+          <label for="s-created">Record date</label>
+          <input
+            type="date"
+            id="s-created"
+            name="created_at"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn-submit">Save record</button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       FORM 4: Admin Controls
+  ══════════════════════════════════════════ -->
+  <div class="form-card" id="form-admin">
+    <div class="form-card-header">
+      <h2>Admin — Add new user</h2>
+      <p>Register a new patient, doctor, or administrator</p>
+    </div>
+    <div class="form-body">
+      <div id="admin-success" class="success-msg">User created successfully!</div>
+
+      <form id="adminForm" action="php/admin_add_user.php" method="POST" novalidate>
+
+        <!-- Role selector -->
+        <div class="form-group">
+          <label>User role</label>
+          <div class="role-group">
+            <div class="role-option">
+              <input type="radio" name="user_role" id="ur-patient" value="patient" checked required>
+              <label for="ur-patient"><span class="role-icon">&#128100;</span>Patient</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" name="user_role" id="ur-doctor" value="doctor" required>
+              <label for="ur-doctor"><span class="role-icon">&#129658;</span>Doctor</label>
+            </div>
+            <div class="role-option">
+              <input type="radio" name="user_role" id="ur-admin" value="admin" required>
+              <label for="ur-admin"><span class="role-icon">&#128737;</span>Admin</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Name -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="a-firstname">First name</label>
+            <input
+              type="text"
+              id="a-firstname"
+              name="first_name"
+              placeholder="First name"
+              required
+              minlength="2"
+              pattern="[A-Za-z ]+"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-group">
+            <label for="a-lastname">Last name</label>
+            <input
+              type="text"
+              id="a-lastname"
+              name="last_name"
+              placeholder="Last name"
+              required
+              minlength="2"
+              pattern="[A-Za-z ]+"
+              autocomplete="off"
+            />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="a-email">Email address</label>
+          <input
+            type="email"
+            id="a-email"
+            name="email"
+            placeholder="user@hospital.com"
+            required
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- Specialisation (doctor only) -->
+        <div class="form-group" id="spec-group">
+          <label for="a-spec">Specialisation</label>
+          <input
+            type="text"
+            id="a-spec"
+            name="specialisation"
+            placeholder="e.g. Cardiology"
+            minlength="3"
+          />
+          <p class="hint">Only required for doctors</p>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="a-password">Temporary password</label>
+          <input
+            type="password"
+            id="a-password"
+            name="password"
+            placeholder="Min. 8 characters"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
+          <p class="hint">User should change this on first login</p>
+        </div>
+
+        <!-- Confirm password -->
+        <div class="form-group">
+          <label for="a-confirm">Confirm password</label>
+          <input
+            type="password"
+            id="a-confirm"
+            name="confirm_password"
+            placeholder="Re-enter password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
+          <p class="hint" id="pw-match-hint"></p>
+        </div>
+
+        <button type="submit" class="btn-submit">Create user</button>
+      </form>
+    </div>
+  </div>
+
+
+  <script>
+    // ============================================================
+    // Q9: JavaScript Functionality
+    // - Form validation functions
+    // - Arrays to store appointment list dynamically
+    // - Objects to represent appointment data
+    // ============================================================
+
+
+    // ── 1. TAB SWITCHING ─────────────────────────────────────────
+    function showForm(name) {
+      document.querySelectorAll('.form-card').forEach(f => f.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('form-' + name).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+
+    // ── 2. DATE SETUP ────────────────────────────────────────────
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('b-date');
+    if (dateInput) { dateInput.min = today; }
+    const recordDate = document.getElementById('s-created');
+    if (recordDate) { recordDate.valueAsDate = new Date(); }
+
+
+    // ── 3. REUSABLE VALIDATION FUNCTIONS ─────────────────────────
+
+    // Check a field is not empty
+    function isNotEmpty(value) {
+      return value.trim().length > 0;
+    }
+
+    // Check a value meets a minimum length
+    function meetsMinLength(value, min) {
+      return value.trim().length >= min;
+    }
+
+    // Check email format using regex
+    function isValidEmail(value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(value.trim());
+    }
+
+    // Check phone is exactly 10 digits
+    function isValidPhone(value) {
+      const phoneRegex = /^[0-9]{10}$/;
+      return phoneRegex.test(value.trim());
+    }
+
+    // Check two values match (for password confirmation)
+    function valuesMatch(val1, val2) {
+      return val1 === val2;
+    }
+
+    // Check a date is not in the past
+    function isNotPastDate(dateString) {
+      const selected = new Date(dateString);
+      const todayDate = new Date();
+      todayDate.setHours(0, 0, 0, 0);
+      return selected >= todayDate;
+    }
+
+    // Show an error message under a field
+    function showError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      field.style.borderColor = 'var(--error)';
+      let errEl = document.getElementById(fieldId + '-err');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.id = fieldId + '-err';
+        errEl.style.cssText = 'color:var(--error);font-size:0.78rem;margin-top:3px;';
+        field.parentNode.appendChild(errEl);
+      }
+      errEl.textContent = message;
+    }
+
+    // Clear an error message from a field
+    function clearError(fieldId) {
+      const field = document.getElementById(fieldId);
+      field.style.borderColor = '';
+      const errEl = document.getElementById(fieldId + '-err');
+      if (errEl) errEl.textContent = '';
+    }
+
+
+    // ── 4. LOGIN FORM VALIDATION ──────────────────────────────────
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let valid = true;
+
+      const email    = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      clearError('login-email');
+      clearError('login-password');
+
+      if (!isValidEmail(email)) {
+        showError('login-email', 'Please enter a valid email address.');
+        valid = false;
+      }
+      if (!meetsMinLength(password, 6)) {
+        showError('login-password', 'Password must be at least 6 characters.');
+        valid = false;
+      }
+
+      if (valid) {
+        document.getElementById('login-success').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('login-success').style.display = 'none';
+        }, 4000);
+        // In production: this.submit() — sends to login.php
+      }
+    });
+
+
+    // ── 5. BOOKING FORM VALIDATION + APPOINTMENT OBJECT/ARRAY ────
+
+    // Array to store pending appointments dynamically
+    const appointmentList = [];
+
+    // Object template representing one appointment
+    function createAppointmentObject(data) {
+      return {
+        id:              Date.now(),   // temporary client-side ID
+        firstName:       data.firstName,
+        lastName:        data.lastName,
+        email:           data.email,
+        phone:           data.phone,
+        doctorId:        data.doctorId,
+        appointmentDate: data.appointmentDate,
+        appointmentTime: data.appointmentTime,
+        reason:          data.reason,
+        status:          'requested',  // default status
+        submittedAt:     new Date().toLocaleString()
+      };
+    }
+
+    // Function to render the appointment list in the UI
+    function renderAppointmentList() {
+      let container = document.getElementById('appointment-list-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'appointment-list-container';
+        container.style.cssText = 'margin-top:1.5rem;';
+        document.getElementById('form-booking').querySelector('.form-body').appendChild(container);
+      }
+
+      if (appointmentList.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      // Build the list using array .map() to iterate over objects
+      const listHTML = appointmentList.map((appt, index) => `
+        <div style="background:var(--accent);border:1px solid var(--border);
+                    border-radius:8px;padding:12px;margin-bottom:8px;font-size:0.85rem;">
+          <strong>#${index + 1} — ${appt.firstName} ${appt.lastName}</strong>
+          <span style="float:right;background:#b7950b;color:#fff;
+                       padding:2px 8px;border-radius:99px;font-size:0.75rem;">
+            ${appt.status}
+          </span><br>
+          <span style="color:var(--muted)">
+            ${appt.appointmentDate} at ${appt.appointmentTime} &nbsp;|&nbsp; ${appt.reason}
+          </span>
+          <br>
+          <button onclick="removeAppointment(${appt.id})"
+            style="margin-top:6px;background:none;border:none;
+                   color:var(--error);font-size:0.78rem;cursor:pointer;padding:0;">
+            ✕ Remove
+          </button>
+        </div>
+      `).join('');
+
+      container.innerHTML = `
+        <p style="font-size:0.82rem;font-weight:600;color:var(--muted);
+                  text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">
+          Pending appointments (${appointmentList.length})
+        </p>
+        ${listHTML}
+      `;
+    }
+
+    // Function to remove an appointment from the array by ID
+    function removeAppointment(id) {
+      const index = appointmentList.findIndex(a => a.id === id);
+      if (index !== -1) {
+        appointmentList.splice(index, 1);
+        renderAppointmentList();
+      }
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let valid = true;
+
+      const fields = {
+        'b-firstname': { value: document.getElementById('b-firstname').value, rule: v => meetsMinLength(v, 2), msg: 'First name must be at least 2 characters.' },
+        'b-lastname':  { value: document.getElementById('b-lastname').value,  rule: v => meetsMinLength(v, 2), msg: 'Last name must be at least 2 characters.'  },
+        'b-email':     { value: document.getElementById('b-email').value,     rule: v => isValidEmail(v),      msg: 'Please enter a valid email address.'        },
+        'b-phone':     { value: document.getElementById('b-phone').value,     rule: v => isValidPhone(v),      msg: 'Phone must be exactly 10 digits.'           },
+        'b-doctor':    { value: document.getElementById('b-doctor').value,    rule: v => isNotEmpty(v),        msg: 'Please select a doctor.'                   },
+        'b-date':      { value: document.getElementById('b-date').value,      rule: v => isNotEmpty(v) && isNotPastDate(v), msg: 'Please select a valid future date.' },
+        'b-time':      { value: document.getElementById('b-time').value,      rule: v => isNotEmpty(v),        msg: 'Please select a time.'                     },
+        'b-reason':    { value: document.getElementById('b-reason').value,    rule: v => meetsMinLength(v, 5), msg: 'Please provide a reason (min 5 characters).'},
+      };
+
+      // Loop through fields object to validate each one
+      for (const [id, config] of Object.entries(fields)) {
+        clearError(id);
+        if (!config.rule(config.value)) {
+          showError(id, config.msg);
+          valid = false;
+        }
+      }
+
+      if (valid) {
+        // Create appointment object and push into the array
+        const newAppointment = createAppointmentObject({
+          firstName:       document.getElementById('b-firstname').value,
+          lastName:        document.getElementById('b-lastname').value,
+          email:           document.getElementById('b-email').value,
+          phone:           document.getElementById('b-phone').value,
+          doctorId:        document.getElementById('b-doctor').value,
+          appointmentDate: document.getElementById('b-date').value,
+          appointmentTime: document.getElementById('b-time').value,
+          reason:          document.getElementById('b-reason').value,
+        });
+
+        appointmentList.push(newAppointment);
+        renderAppointmentList();
+
+        document.getElementById('booking-success').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('booking-success').style.display = 'none';
+        }, 4000);
+
+        this.reset();
+        // In production: this.submit() — sends to book_appointment.php
+      }
+    });
+
+
+    // ── 6. SCHEDULE FORM VALIDATION ───────────────────────────────
+    document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let valid = true;
+
+      const apptId   = document.getElementById('s-appt-id').value;
+      const status   = document.querySelector('input[name="status"]:checked');
+      const created  = document.getElementById('s-created').value;
+
+      clearError('s-appt-id');
+      clearError('s-created');
+
+      if (!isNotEmpty(apptId) || parseInt(apptId) <= 0) {
+        showError('s-appt-id', 'Please enter a valid appointment ID.');
+        valid = false;
+      }
+      if (!status) {
+        valid = false;
+        // Show a message near the status section
+        let errEl = document.getElementById('status-err');
+        if (!errEl) {
+          errEl = document.createElement('p');
+          errEl.id = 'status-err';
+          errEl.style.cssText = 'color:var(--error);font-size:0.78rem;margin-top:3px;';
+          document.querySelector('.status-pills').after(errEl);
+        }
+        errEl.textContent = 'Please select a status.';
+      } else {
+        const errEl = document.getElementById('status-err');
+        if (errEl) errEl.textContent = '';
+      }
+      if (!isNotEmpty(created)) {
+        showError('s-created', 'Please select a record date.');
+        valid = false;
+      }
+
+      if (valid) {
+        document.getElementById('schedule-success').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('schedule-success').style.display = 'none';
+        }, 4000);
+        // In production: this.submit() — sends to update_appointment.php
+      }
+    });
+
+
+    // ── 7. ADMIN FORM VALIDATION ──────────────────────────────────
+
+    // Show/hide specialisation based on selected role
+    document.querySelectorAll('input[name="user_role"]').forEach(radio => {
+      radio.addEventListener('change', function () {
+        document.getElementById('spec-group').style.display =
+          this.value === 'doctor' ? 'block' : 'none';
+      });
+    });
+    document.getElementById('spec-group').style.display = 'none';
+
+    // Live password match check
+    const pwField = document.getElementById('a-password');
+    const cfField = document.getElementById('a-confirm');
+    const pwHint  = document.getElementById('pw-match-hint');
+
+    function checkPwMatch() {
+      if (!cfField.value) { pwHint.textContent = ''; return; }
+      if (valuesMatch(pwField.value, cfField.value)) {
+        pwHint.textContent   = '✓ Passwords match';
+        pwHint.style.color   = 'var(--success)';
+      } else {
+        pwHint.textContent   = '✗ Passwords do not match';
+        pwHint.style.color   = 'var(--error)';
+      }
+    }
+    pwField.addEventListener('input', checkPwMatch);
+    cfField.addEventListener('input', checkPwMatch);
+
+    document.getElementById('adminForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let valid = true;
+
+      const firstName = document.getElementById('a-firstname').value;
+      const lastName  = document.getElementById('a-lastname').value;
+      const email     = document.getElementById('a-email').value;
+      const password  = document.getElementById('a-password').value;
+      const confirm   = document.getElementById('a-confirm').value;
+      const role      = document.querySelector('input[name="user_role"]:checked')?.value;
+      const spec      = document.getElementById('a-spec').value;
+
+      clearError('a-firstname');
+      clearError('a-lastname');
+      clearError('a-email');
+      clearError('a-password');
+      clearError('a-confirm');
+      clearError('a-spec');
+
+      if (!meetsMinLength(firstName, 2)) { showError('a-firstname', 'First name must be at least 2 characters.'); valid = false; }
+      if (!meetsMinLength(lastName, 2))  { showError('a-lastname',  'Last name must be at least 2 characters.');  valid = false; }
+      if (!isValidEmail(email))          { showError('a-email',     'Please enter a valid email address.');        valid = false; }
+      if (!meetsMinLength(password, 8))  { showError('a-password',  'Password must be at least 8 characters.');   valid = false; }
+      if (!valuesMatch(password, confirm)) { showError('a-confirm', 'Passwords do not match.');                   valid = false; }
+      if (role === 'doctor' && !meetsMinLength(spec, 3)) {
+        showError('a-spec', 'Specialisation is required for doctors.');
+        valid = false;
+      }
+
+      if (valid) {
+        document.getElementById('admin-success').style.display = 'block';
+        setTimeout(() => {
+          document.getElementById('admin-success').style.display = 'none';
+        }, 4000);
+        // In production: this.submit() — sends to admin_add_user.php
+      }
+    });
+
+  </script>
+
+</body>
+</html>
